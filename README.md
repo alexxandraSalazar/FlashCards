@@ -1,4 +1,4 @@
-# 🀄 Flashcards HSK1 & HSK2 - Aprende Chino
+# 🀄 Flashcards HSK - Aprende Chino
 
 ¡Bienvenido a **Flashcards HSK**!  
 Una aplicación de **tarjetas de memoria (flashcards)** para aprender caracteres chinos, con la posibilidad de **crear tus propios decks personalizados**.
