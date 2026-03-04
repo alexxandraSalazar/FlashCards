@@ -4,45 +4,22 @@ import { useState } from "react"
 import { Button } from "@/pages/components/ui/button"
 import { Card } from "@/pages/components/ui/card"
 import { Badge } from "@/pages/components/ui/badge"
-import { Plus, RotateCcw, ChevronLeft, ChevronRight, BookOpen } from "lucide-react"
+import { Plus, RotateCcw, ChevronLeft, ChevronRight, BookOpen, Loader2 } from "lucide-react"
 import { FlashcardComponent } from "./components/flashcard"
 import { AddFlashcardDialog } from "./components/add-flashcard-dialog"
-
-// Datos iniciales de HSK 1 y HSK 2
-const initialDecks = {
-  "HSK 1": [
-    { id: 1, character: "我", pinyin: "wǒ", translation: "yo, me" },
-    { id: 2, character: "你", pinyin: "nǐ", translation: "tú" },
-    { id: 3, character: "他", pinyin: "tā", translation: "él" },
-    { id: 4, character: "她", pinyin: "tā", translation: "ella" },
-    { id: 5, character: "好", pinyin: "hǎo", translation: "bueno, bien" },
-    { id: 6, character: "人", pinyin: "rén", translation: "persona" },
-    { id: 7, character: "大", pinyin: "dà", translation: "grande" },
-    { id: 8, character: "小", pinyin: "xiǎo", translation: "pequeño" },
-    { id: 9, character: "水", pinyin: "shuǐ", translation: "agua" },
-    { id: 10, character: "火", pinyin: "huǒ", translation: "fuego" },
-  ],
-  "HSK 2": [
-    { id: 11, character: "学习", pinyin: "xuéxí", translation: "estudiar" },
-    { id: 12, character: "工作", pinyin: "gōngzuò", translation: "trabajo" },
-    { id: 13, character: "朋友", pinyin: "péngyǒu", translation: "amigo" },
-    { id: 14, character: "时间", pinyin: "shíjiān", translation: "tiempo" },
-    { id: 15, character: "地方", pinyin: "dìfāng", translation: "lugar" },
-    { id: 16, character: "问题", pinyin: "wèntí", translation: "problema" },
-    { id: 17, character: "开始", pinyin: "kāishǐ", translation: "comenzar" },
-    { id: 18, character: "结束", pinyin: "jiéshù", translation: "terminar" },
-    { id: 19, character: "帮助", pinyin: "bāngzhù", translation: "ayudar" },
-    { id: 20, character: "希望", pinyin: "xīwàng", translation: "esperar" },
-  ],
-}
+import { flashcardService } from "@/services/flashcards"
+import { ImportDialog } from "./components/import-dialog"
+import { useFlashcards } from "@/hooks/useFlashcards"
 
 export default function FlashcardsApp() {
-  const [decks, setDecks] = useState(initialDecks)
+  // Extraemos la lógica del hook
+  const { decks, loading, addCard, removeCard } = useFlashcards()
+
   const [selectedDeck, setSelectedDeck] = useState<string | null>(null)
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showAddDialog, setShowAddDialog] = useState(false)
 
-  const currentDeckCards = selectedDeck ? decks[selectedDeck as keyof typeof decks] : []
+  const currentDeckCards = selectedDeck ? decks[selectedDeck] || [] : []
 
   const nextCard = () => {
     if (currentCardIndex < currentDeckCards.length - 1) {
@@ -60,26 +37,19 @@ export default function FlashcardsApp() {
     setCurrentCardIndex(0)
   }
 
-  const addFlashcard = (deckName: string, flashcard: { character: string; pinyin: string; translation: string }) => {
-    const newId =
-      Math.max(
-        ...Object.values(decks)
-          .flat()
-          .map((card) => card.id),
-      ) + 1
-    const newCard = { ...flashcard, id: newId }
-
-    setDecks((prev) => ({
-      ...prev,
-      [deckName]: [...(prev[deckName as keyof typeof prev] || []), newCard],
-    }))
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
+        <Loader2 className="w-10 h-10 animate-spin text-amber-600" />
+        <p className="text-muted-foreground animate-pulse">Cargando flashcards...</p>
+      </div>
+    )
   }
 
   if (selectedDeck) {
     return (
       <div className="min-h-screen bg-background p-4">
         <div className="max-w-2xl mx-auto">
-          {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <Button variant="ghost" onClick={() => setSelectedDeck(null)} className="flex items-center gap-2">
               <ChevronLeft className="w-4 h-4" />
@@ -96,43 +66,52 @@ export default function FlashcardsApp() {
               Reiniciar
             </Button>
           </div>
-
-          {/* Flashcard */}
           <div className="mb-8">
-            <FlashcardComponent card={currentDeckCards[currentCardIndex]} />
+            {currentDeckCards.length > 0 ? (
+              <FlashcardComponent
+                card={currentDeckCards[currentCardIndex]}
+                onDelete={() => removeCard(currentDeckCards[currentCardIndex].id)}
+                onRate={async (id, level) => {
+                  await flashcardService.updateDifficulty(id, level);
+                  nextCard(); // Pasa automáticamente a la siguiente tarjeta al calificar
+                }}
+              />
+            ) : (
+              <p className="text-center py-10 text-muted-foreground">No hay tarjetas en este mazo.</p>
+            )}
           </div>
+          {currentDeckCards.length > 0 && (
+            <div className="flex justify-between items-center">
+              <Button
+                variant="outline"
+                onClick={prevCard}
+                disabled={currentCardIndex === 0}
+                className="flex items-center gap-2 bg-transparent"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Anterior
+              </Button>
 
-          {/* Navigation */}
-          <div className="flex justify-between items-center">
-            <Button
-              variant="outline"
-              onClick={prevCard}
-              disabled={currentCardIndex === 0}
-              className="flex items-center gap-2 bg-transparent"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </Button>
+              <div className="flex gap-2">
+                {currentDeckCards.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`w-2 h-2 rounded-full ${index === currentCardIndex ? "bg-amber-600" : "bg-muted"}`}
+                  />
+                ))}
+              </div>
 
-            <div className="flex gap-2">
-              {currentDeckCards.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 rounded-full ${index === currentCardIndex ? "bg-amber-600" : "bg-muted"}`}
-                />
-              ))}
+              <Button
+                variant="outline"
+                onClick={nextCard}
+                disabled={currentCardIndex === currentDeckCards.length - 1}
+                className="flex items-center gap-2 bg-transparent"
+              >
+                Siguiente
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
-
-            <Button
-              variant="outline"
-              onClick={nextCard}
-              disabled={currentCardIndex === currentDeckCards.length - 1}
-              className="flex items-center gap-2 bg-transparent"
-            >
-              Siguiente
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
+          )}
         </div>
       </div>
     )
@@ -149,19 +128,14 @@ export default function FlashcardsApp() {
           </div>
           <p className="text-lg text-muted-foreground">Aprende caracteres chinos de forma interactiva</p>
         </div>
-
-        {/* Add Flashcard Button */}
-        <div className="flex justify-center mb-8">
-          <Button
-            onClick={() => setShowAddDialog(true)}
-            className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white"
-          >
-            <Plus className="w-4 h-4" />
-            Agregar Flashcard
+        <div className="flex justify-center gap-4 mb-8">
+          <Button onClick={() => setShowAddDialog(true)} className="bg-amber-600 hover:bg-amber-700 text-white">
+            <Plus className="w-4 h-4 mr-2" /> Agregar Individual
           </Button>
+
+          <ImportDialog onImportSuccess={() => window.location.reload()} />
         </div>
 
-        {/* Decks Grid */}
         <div className="grid md:grid-cols-2 gap-6">
           {Object.entries(decks).map(([deckName, cards]) => (
             <Card
@@ -182,7 +156,6 @@ export default function FlashcardsApp() {
               <div className="space-y-2">
                 <p className="text-muted-foreground">Practica caracteres del nivel {deckName}</p>
 
-                {/* Preview de algunos caracteres */}
                 <div className="flex gap-2 flex-wrap">
                   {cards.slice(0, 5).map((card) => (
                     <span key={card.id} className="text-2xl font-bold text-amber-600">
@@ -195,12 +168,10 @@ export default function FlashcardsApp() {
             </Card>
           ))}
         </div>
-
-        {/* Add Flashcard Dialog */}
         <AddFlashcardDialog
           open={showAddDialog}
           onOpenChange={setShowAddDialog}
-          onAddFlashcard={addFlashcard}
+          onAddFlashcard={addCard}
           availableDecks={Object.keys(decks)}
         />
       </div>
