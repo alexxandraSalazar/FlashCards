@@ -40,7 +40,7 @@ export default function FlashcardsApp() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
-        <Loader2 className="w-10 h-10 animate-spin text-amber-600" />
+        <Loader2 className="w-10 h-10 animate-spin text-yellow-500" />
         <p className="text-muted-foreground animate-pulse">Cargando flashcards...</p>
       </div>
     )
@@ -96,7 +96,7 @@ export default function FlashcardsApp() {
                 {currentDeckCards.map((_, index) => (
                   <div
                     key={index}
-                    className={`w-2 h-2 rounded-full ${index === currentCardIndex ? "bg-amber-600" : "bg-muted"}`}
+                    className={`w-2 h-2 rounded-full ${index === currentCardIndex ? "bg-yellow-500" : "bg-muted"}`}
                   />
                 ))}
               </div>
@@ -123,13 +123,13 @@ export default function FlashcardsApp() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <BookOpen className="w-8 h-8 text-amber-600" />
+            <BookOpen className="w-8 h-8 text-yellow-500" />
             <h1 className="text-4xl font-bold text-foreground">Flashcards HSK</h1>
           </div>
           <p className="text-lg text-muted-foreground">Aprende caracteres chinos de forma interactiva</p>
         </div>
         <div className="flex justify-center gap-4 mb-8">
-          <Button onClick={() => setShowAddDialog(true)} className="bg-amber-600 hover:bg-amber-700 text-white">
+          <Button onClick={() => setShowAddDialog(true)} className="bg-yellow-500 hover:bg-yellow-600 text-white">
             <Plus className="w-4 h-4 mr-2" /> Agregar Individual
           </Button>
 
@@ -158,7 +158,7 @@ export default function FlashcardsApp() {
 
                 <div className="flex gap-2 flex-wrap">
                   {cards.slice(0, 5).map((card) => (
-                    <span key={card.id} className="text-2xl font-bold text-amber-600">
+                    <span key={card.id} className="text-2xl font-bold text-yellow-500">
                       {card.character}
                     </span>
                   ))}

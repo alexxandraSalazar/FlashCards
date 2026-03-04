@@ -150,7 +150,7 @@ export function AddFlashcardDialog({ open, onOpenChange, onAddFlashcard, availab
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit"  className="bg-amber-600 hover:bg-amber-700 text-white">Agregar Flashcard</Button>
+            <Button type="submit"  className="bg-yellow-500 hover:bg-yellow-600 text-white">Agregar Flashcard</Button>
           </DialogFooter>
         </form>
       </DialogContent>

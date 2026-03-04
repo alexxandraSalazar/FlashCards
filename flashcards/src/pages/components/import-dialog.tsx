@@ -54,7 +54,7 @@ export function ImportDialog({ onImportSuccess }: { onImportSuccess: () => void 
                     <DialogTitle>Importar Flashcards</DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl space-y-4">
-                    <FileText className="w-12 h-12 text-amber-600 opacity-20" />
+                    <FileText className="w-12 h-12 text-yellow-500 opacity-20" />
                     <div className="text-center">
                         <p className="text-sm font-medium">Sube tu archivo .csv</p>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -62,7 +62,7 @@ export function ImportDialog({ onImportSuccess }: { onImportSuccess: () => void 
                         </p>
                     </div>
                     <label className="cursor-pointer">
-                        <div className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition-colors flex items-center">
+                        <div className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors flex items-center">
                             {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
                             Seleccionar Archivo
                         </div>

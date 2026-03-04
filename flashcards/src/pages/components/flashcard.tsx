@@ -64,7 +64,7 @@ export function FlashcardComponent({ card, onDelete, onRate, onNext }: Flashcard
           
           <Card className="flip-card-front bg-card border-2 border-border cursor-pointer hover:shadow-md transition-all duration-300">
             <div className="h-full flex flex-col items-center justify-center p-8">
-              <div className="text-8xl font-bold text-amber-600 mb-4">{card.character}</div>
+              <div className="text-8xl font-bold text-yellow-500 mb-4">{card.character}</div>
               <div className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Revelar</div>
             </div>
           </Card>
@@ -75,14 +75,14 @@ export function FlashcardComponent({ card, onDelete, onRate, onNext }: Flashcard
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="absolute top-2 right-2 text-amber-600 hover:bg-amber-100/50 rounded-full transition-colors"
+                className="absolute top-2 right-2 text-yellow-500 hover:bg-amber-100/50 rounded-full transition-colors"
                 onClick={(e) => { e.stopPropagation(); speak(card.character); }}
               >
                 <Volume2 className="w-6 h-6" />
               </Button>
 
-              <div className="text-6xl font-bold mb-1 text-amber-600">{card.character}</div>
-              <div className="text-2xl mb-2 font-medium text-amber-700/80">{card.pinyin}</div>
+              <div className="text-6xl font-bold mb-1 text-yellow-500">{card.character}</div>
+              <div className="text-2xl mb-2 font-medium text-yellow-600/80">{card.pinyin}</div>
               <div className="text-xl text-center mb-8 px-4 font-light">"{card.translation}"</div>
 
               <div className="flex gap-3 w-full mt-auto">
