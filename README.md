@@ -38,7 +38,7 @@ En resumen, la repetición espaciada convierte la práctica constante en un apre
 1. Clona el repositorio:
 
 ```bash
-git clone https://github.com/tu-usuario/flashcards-hsk.git
+git clone https://github.com/alexxandraSalazar/FlashCards.git
 ```
 2. Ve al directorio del proyecto:
 
