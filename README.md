@@ -68,7 +68,7 @@ npm run dev
 - TypeScript / React  
 - TailwindCSS 
 - ShadCN  
-- LocalStorage para guardar el progreso del usuario y decks personalizados
+- Supabase para base de datos
 
 ---
 
