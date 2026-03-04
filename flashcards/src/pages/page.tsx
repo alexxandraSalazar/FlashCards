@@ -12,14 +12,17 @@ import { ImportDialog } from "./components/import-dialog"
 import { useFlashcards } from "@/hooks/useFlashcards"
 
 export default function FlashcardsApp() {
-  // Extraemos la lógica del hook
   const { decks, loading, addCard, removeCard } = useFlashcards()
-
   const [selectedDeck, setSelectedDeck] = useState<string | null>(null)
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showAddDialog, setShowAddDialog] = useState(false)
 
-  const currentDeckCards = selectedDeck ? decks[selectedDeck] || [] : []
+  const safeDecks = decks ?? {}
+  const currentDeckCards = selectedDeck ? safeDecks[selectedDeck] || [] : []
+  
+  const progress = currentDeckCards.length > 0 
+    ? ((currentCardIndex + 1) / currentDeckCards.length) * 100 
+    : 0
 
   const nextCard = () => {
     if (currentCardIndex < currentDeckCards.length - 1) {
@@ -57,8 +60,8 @@ export default function FlashcardsApp() {
             </Button>
             <div className="text-center">
               <h1 className="text-2xl font-bold text-foreground">{selectedDeck}</h1>
-              <p className="text-muted-foreground">
-                {currentCardIndex + 1} de {currentDeckCards.length}
+              <p className="text-sm text-muted-foreground font-medium">
+                {currentCardIndex + 1} / {currentDeckCards.length}
               </p>
             </div>
             <Button variant="outline" onClick={resetDeck} className="flex items-center gap-2 bg-transparent">
@@ -66,6 +69,14 @@ export default function FlashcardsApp() {
               Reiniciar
             </Button>
           </div>
+
+          <div className="w-full h-1.5 bg-muted rounded-full mb-8 overflow-hidden">
+            <div 
+              className="h-full bg-yellow-500 transition-all duration-300 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
           <div className="mb-8">
             {currentDeckCards.length > 0 ? (
               <FlashcardComponent
@@ -73,39 +84,32 @@ export default function FlashcardsApp() {
                 onDelete={() => removeCard(currentDeckCards[currentCardIndex].id)}
                 onRate={async (id, level) => {
                   await flashcardService.updateDifficulty(id, level);
-                  nextCard(); // Pasa automáticamente a la siguiente tarjeta al calificar
+                  nextCard();
                 }}
               />
             ) : (
               <p className="text-center py-10 text-muted-foreground">No hay tarjetas en este mazo.</p>
             )}
           </div>
+
           {currentDeckCards.length > 0 && (
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center gap-4">
               <Button
                 variant="outline"
                 onClick={prevCard}
                 disabled={currentCardIndex === 0}
-                className="flex items-center gap-2 bg-transparent"
+                className="flex-1 max-w-[140px] flex items-center gap-2 bg-transparent"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Anterior
               </Button>
 
-              <div className="flex gap-2">
-                {currentDeckCards.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-2 h-2 rounded-full ${index === currentCardIndex ? "bg-yellow-500" : "bg-muted"}`}
-                  />
-                ))}
-              </div>
 
               <Button
                 variant="outline"
                 onClick={nextCard}
                 disabled={currentCardIndex === currentDeckCards.length - 1}
-                className="flex items-center gap-2 bg-transparent"
+                className="flex-1 max-w-[140px] flex items-center gap-2 bg-transparent"
               >
                 Siguiente
                 <ChevronRight className="w-4 h-4" />
@@ -120,7 +124,6 @@ export default function FlashcardsApp() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <BookOpen className="w-8 h-8 text-yellow-500" />
@@ -128,16 +131,16 @@ export default function FlashcardsApp() {
           </div>
           <p className="text-lg text-muted-foreground">Aprende caracteres chinos de forma interactiva</p>
         </div>
+
         <div className="flex justify-center gap-4 mb-8">
           <Button onClick={() => setShowAddDialog(true)} className="bg-yellow-500 hover:bg-yellow-600 text-white">
             <Plus className="w-4 h-4 mr-2" /> Agregar Individual
           </Button>
-
           <ImportDialog onImportSuccess={() => window.location.reload()} />
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {Object.entries(decks).map(([deckName, cards]) => (
+          {Object.entries(safeDecks).map(([deckName, cards]) => (
             <Card
               key={deckName}
               className="p-6 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
@@ -155,7 +158,6 @@ export default function FlashcardsApp() {
 
               <div className="space-y-2">
                 <p className="text-muted-foreground">Practica caracteres del nivel {deckName}</p>
-
                 <div className="flex gap-2 flex-wrap">
                   {cards.slice(0, 5).map((card) => (
                     <span key={card.id} className="text-2xl font-bold text-yellow-500">
@@ -168,11 +170,12 @@ export default function FlashcardsApp() {
             </Card>
           ))}
         </div>
+
         <AddFlashcardDialog
           open={showAddDialog}
           onOpenChange={setShowAddDialog}
           onAddFlashcard={addCard}
-          availableDecks={Object.keys(decks)}
+          availableDecks={Object.keys(safeDecks)}
         />
       </div>
     </div>
