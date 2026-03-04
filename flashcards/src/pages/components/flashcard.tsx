@@ -18,11 +18,16 @@ export function FlashcardComponent({ card, onDelete, onRate, onNext }: Flashcard
 
   useEffect(() => {
     setIsFlipped(false)
+    window.speechSynthesis.getVoices()
   }, [card.id])
 
   const speak = (text: string) => {
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
+    const voices = window.speechSynthesis.getVoices()
+    const chineseVoice = voices.find(v => v.lang.includes("zh"))
+    
+    if (chineseVoice) utterance.voice = chineseVoice
     utterance.lang = "zh-CN"
     utterance.rate = 0.8
     window.speechSynthesis.speak(utterance)
@@ -83,7 +88,7 @@ export function FlashcardComponent({ card, onDelete, onRate, onNext }: Flashcard
               <div className="flex gap-3 w-full mt-auto">
                 <Button 
                   onClick={(e) => handleRating(e, 'hard')}
-                  className="flex-1 h-12 bg-background/50 hover:bg-background/80 border-border text-foreground border shadow-sm transition-all active:scale-95 hover:-translate-y-0.5"
+                  className="flex-1 h-12 bg-background/50 hover:bg-background/80 border-border text-foreground border shadow-sm transition-all active:scale-95"
                   variant="outline"
                 >
                   Repetir
@@ -91,7 +96,7 @@ export function FlashcardComponent({ card, onDelete, onRate, onNext }: Flashcard
                 
                 <Button 
                   onClick={(e) => handleRating(e, 'easy')}
-                  className="flex-1 h-12 bg-background/50 hover:bg-background/80 border-border text-foreground border shadow-sm transition-all active:scale-95 hover:-translate-y-0.5"
+                  className="flex-1 h-12 bg-background/50 hover:bg-background/80 border-border text-foreground border shadow-sm transition-all active:scale-95"
                   variant="outline"
                 >
                   Aprendido
